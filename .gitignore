@@ -1,0 +1,28 @@
+# Eclipse / STS
+.metadata/
+.recommenders/
+RemoteSystemsTempFiles/
+Servers/
+
+# Eclipse project settings
+.settings/
+.classpath
+.project
+
+# Build
+target/
+bin/
+build/
+
+# Java
+*.class
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment / secrets
+.env
