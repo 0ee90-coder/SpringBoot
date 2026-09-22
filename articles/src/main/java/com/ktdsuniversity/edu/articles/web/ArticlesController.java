@@ -58,6 +58,7 @@ public class ArticlesController {
 	@PostMapping("/articles")
 	@ResponseBody
 	public ApiResponse<ArticlesVO> makeNewArticle(@RequestBody RegistArticleVO registArticleVO) {
+	try {	
 		ArticlesVO result = this.articlesService.createNewArticle(registArticleVO);
 		return ApiResponse.CREATED(result);
 	} 
