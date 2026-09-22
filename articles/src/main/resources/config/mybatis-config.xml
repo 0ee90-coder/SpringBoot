@@ -8,5 +8,6 @@ https://mybatis.org/mybatis-3/ko/configuration.html#settings
   -->
     <settings>
         <setting name="mapUnderscoreToCamelCase" value="true"/>
+        <setting name="jdbcTypeForNull" value="NULL"/> <!--JAVA와DB의 NULL값이 같도록-->
     </settings>
 </configuration>
