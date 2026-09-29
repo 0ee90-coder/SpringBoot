@@ -1,5 +1,7 @@
 package com.ktdsuniversity.edu.articles.vo.response;
 
+import com.ktdsuniversity.edu.files.vo.response.FileSetVO;
+
 import lombok.Data;
 
 // @Getter //멤버변수들의 Getter를 자동 생성.
@@ -25,5 +27,7 @@ public class ArticlesVO {
 	private String crtDt;
 	private String mdfyDt;
 	private String fileSetId;
+	
+	private FileSetVO fileSet;
 	
 }

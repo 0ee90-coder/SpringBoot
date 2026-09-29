@@ -6,27 +6,35 @@ import com.ktdsuniversity.edu.articles.vo.response.ArticleListVO;
 import com.ktdsuniversity.edu.articles.vo.response.ArticlesVO;
 
 public interface ArticlesService {
-	
+
 	/**
 	 * 게시글의 목록을 조회.
-	 * @return (게시글 개수, 게시글 목록) 
+	 * @return (게시글 개수, 게시글 목록)
 	 */
-	
 	ArticleListVO readAllArticles();
 	
 	/**
 	 * 게시글 생성
-	 * @parm registArticleVO 클라이언트 보내 줌과 동시에 */
-	
+	 * @param registArticleVO 클라이언트가 보내준 게시글 등록 정보 (제목, 내용, 이메일)
+	 */
 	ArticlesVO createNewArticle(RegistArticleVO registArticleVO);
-	
+
 	/**
 	 * 게시글 수정
-	 * @parm articleId 수정하려는 게시글의 아이디
-	 * @parm modifyArticleVO 수정하려는 내용
+	 * @param articleId 수정하려는 게시글의 아이디
+	 * @param modifyArticleVO 수정하려는 내용
 	 * @return 수정된 결과
 	 */
 	ArticlesVO updateArticle(String articleId, ModifyArticleVO modifyArticleVO);
 
-	ArticlesVO deleteArticle(String articleId);
+	/**
+	 * 게시글 삭제
+	 * @param articleId 삭제하려는 게시글의 아이디
+	 * @return 삭제한 게시글의 아이디
+	 */
+	String deleteArticle(String articleId);
+
+	ArticlesVO readOneArticle(String articleId);
+
+	long recommendOneArticle(String articleId);
 }

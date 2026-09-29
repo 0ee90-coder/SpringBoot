@@ -21,66 +21,100 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @Controller
 public class ArticlesController {
-	
-	/**
-	 * AutoWired ==> 
-	 * BeanContainer에서 같은 타입의 객체가 있다면, 그것을 멤버변수에 할당시켜라!
-	 * 
-	 * */
-	/**@Autowired*/
-	/**BeanContainer에 ArticlesService 타입의 객체가 여러 개 있을 경우
-	 * 객체 명이 ""articlesServiceImpl" 인 객체를 멤버변수에 할당시켜라! 
-	 */
-	//@Qualifier("")
-	//private ArticlesService articlesService;
-	
+
+//	/**
+//	 * @Autowired ==> BeanContainer에서 같은 타입의 객체가 있다면, 그것을 멤버변수에게 할당시켜라!
+//	 */
+//	@Autowired
+//	/**
+//	 * @Qualifier("articlesServiceImpl")
+//	 * BeanContainer에 ArticlesService 타입의 객체가 여러 개 있을 경우
+//	 * 객체 명이 ""articlesServiceImpl" 인 객체를 멤버변수에 할당시켜라!
+//	 */
+//	@Qualifier("articlesServiceImpl")
+//	private ArticlesService articlesService;
+
 	private ArticlesService articlesService;
+
 	/**
-	 * Spring Framework 7.0 이상
-	 * Spring Boost 4.0 이상에서 @Autowired 사용을 권장하지 않는다. 
+	 * Spring Framework 7.0 이상 Spring Boot 4.0 이상에서는 @Autowired 사용을 권장하지 않는다.
 	 * 
-	 * 대신, 생성자를 이용한 DI를 권장한다.
-	 * ==> 이유 :Lombok Lisbrary 때문...( Getter , Setter , 생성자 , toString 자동생성)
-	*/
+	 * 대신, 생성자를 이용한 DI를 권장한다. ==> 이유: Lombok Library 때문... (Getter, Setter, 생성자,
+	 * toString 자동생성)
+	 */
 //	public ArticlesController(ArticlesService articlesService) {
 //		this.articlesService = articlesService;
 //	}
 
 	@GetMapping("/articles")
-	// 컨트롤러가 반환 시키는 "객체"를 "JSON" 으로 변환시키는 View 를 사용해라! ==> @ResponseBody
-	// 반환시키는게 리스트가 아니라면 
+	// 컨트롤러가 반환 시키는 "객체"를 "JSON" 으로 변환시키는 View를 사용해라! ==> @ResponseBody
 	@ResponseBody
 	public ApiResponse<ArticleListVO> getArticles() {
 //		System.out.println(this.articlesService);
 		ArticleListVO result = this.articlesService.readAllArticles();
 		return ApiResponse.OK(result);
 	}
+
 	@PostMapping("/articles")
 	@ResponseBody
-	public ApiResponse<ArticlesVO> makeNewArticle(@RequestBody RegistArticleVO registArticleVO) {
-	try {	
-		ArticlesVO result = this.articlesService.createNewArticle(registArticleVO);
-		return ApiResponse.CREATED(result);
-	} 
+	public ApiResponse<ArticlesVO> makeNewArticle(
+			// Command Object
+			// 클라이언트가 컨트롤러로 전송한 파라미터(폼파라미터, 쿼리스트링파라미터)를 자동으로 받아오는 역할.
+			RegistArticleVO registArticleVO
+	// 클라이언트가 컨트롤러로 전송한 파라미터(폼파라미터, 쿼리스트링파라미터)를 하나씩 받아오는 역할.
+	// , @RequestParam List<MultipartFile> file
+	) {
+
+		try {
+			ArticlesVO result = this.articlesService.createNewArticle(registArticleVO);
+			return ApiResponse.CREATED(result);
+		} catch (IllegalArgumentException iae) {
+			return ApiResponse.FORBIDDEN(iae.getMessage());
+		}
+	}
+
 	@PutMapping("/articles/{articleId}")
 	@ResponseBody
-	public ApiResponse<ArticlesVO> updateArticle( @PathVariable String articleId, 
-			                         @RequestBody ModifyArticleVO modifyArticleVO) {
-		ArticlesVO result = this.articlesService.updateArticle(articleId, modifyArticleVO);
-		return ApiResponse.OK(result);
+	public ApiResponse<ArticlesVO> updateArticle(@PathVariable String articleId,
+			@RequestBody ModifyArticleVO modifyArticleVO) {
+		try {
+			ArticlesVO result = this.articlesService.updateArticle(articleId, modifyArticleVO);
+			return ApiResponse.OK(result);
+		} catch (IllegalArgumentException iae) {
+			return ApiResponse.FORBIDDEN(iae.getMessage());
+		}
 	}
-	
+
 	@DeleteMapping("/articles/{articleId}")
 	@ResponseBody
 	public ApiResponse<String> deleteArticle(@PathVariable String articleId) {
-		String deleteResult = this.articlesService.deleteArticle(articleId);
-		return ApiResponse.OK(deleteResult);
+		try {
+			String deleteResult = this.articlesService.deleteArticle(articleId);
+			return ApiResponse.OK(deleteResult);
+		} catch (IllegalArgumentException iae) {
+			return ApiResponse.FORBIDDEN(iae.getMessage());
+		}
 	}
-	
+
+	@GetMapping("/articles/{articleId}")
+	@ResponseBody
+	public ApiResponse<ArticlesVO> getOneArticle(@PathVariable String articleId) {
+		try {
+			ArticlesVO result = this.articlesService.readOneArticle(articleId);
+			return ApiResponse.OK(result);
+		} catch (IllegalArgumentException iae) {
+			return ApiResponse.FORBIDDEN(iae.getMessage());
+		}
+	}
+
 	@PutMapping("/articles/recommend/{articleId}")
 	@ResponseBody
-	public ApiResponse<Long> recommendOneArticle(@PathVariable String articleId){
-		long recommendResult = this.articlesService.recommendOneArticle(articleId);
-		return ApiResponse.OK(recommendResult);
+	public ApiResponse<Long> recommendOneArticle(@PathVariable String articleId) {
+		try {
+			long recommendResult = this.articlesService.recommendOneArticle(articleId);
+			return ApiResponse.OK(recommendResult);
+		} catch (IllegalArgumentException iae) {
+			return ApiResponse.FORBIDDEN(iae.getMessage());
+		}
 	}
 }
