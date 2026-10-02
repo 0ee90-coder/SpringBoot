@@ -1,12 +1,13 @@
 package com.ktdsuniversity.edu.articles.web;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ktdsuniversity.edu.articles.service.ArticlesService;
@@ -15,7 +16,11 @@ import com.ktdsuniversity.edu.articles.vo.request.RegistArticleVO;
 import com.ktdsuniversity.edu.articles.vo.response.ArticleListVO;
 import com.ktdsuniversity.edu.articles.vo.response.ArticlesVO;
 import com.ktdsuniversity.edu.commons.util.ApiResponse;
+import com.ktdsuniversity.edu.members.vo.response.MembersVO;
 
+import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
@@ -60,11 +65,27 @@ public class ArticlesController {
 	public ApiResponse<ArticlesVO> makeNewArticle(
 			// Command Object
 			// 클라이언트가 컨트롤러로 전송한 파라미터(폼파라미터, 쿼리스트링파라미터)를 자동으로 받아오는 역할.
-			RegistArticleVO registArticleVO
+			@Valid @ModelAttribute RegistArticleVO registArticleVO,
+			BindingResult validationResult,
+			HttpSession session
 	// 클라이언트가 컨트롤러로 전송한 파라미터(폼파라미터, 쿼리스트링파라미터)를 하나씩 받아오는 역할.
 	// , @RequestParam List<MultipartFile> file
 	) {
-
+		
+		System.out.println(validationResult);
+		
+		// Validation 검사를 통과하지 못했다면
+		if (validationResult.hasErrors()) {
+			return ApiResponse.BAD_REQUEST(validationResult.getFieldErrors());
+		}
+		
+		// HttpSession에 있는 __LOGIN_USER__에 있는 email을 꺼내서 registArticleVO에 할당.
+		MembersVO membersVO = (MembersVO) session.getAttribute("__LOGIN_USER__");
+		if(membersVO == null) {
+			throw new IllegalArgumentException("로그인이 필요한 기능입니다.");
+		}
+		registArticleVO.setEmail( membersVO.getEmail());
+		
 		try {
 			ArticlesVO result = this.articlesService.createNewArticle(registArticleVO);
 			return ApiResponse.CREATED(result);
@@ -75,8 +96,22 @@ public class ArticlesController {
 
 	@PutMapping("/articles/{articleId}")
 	@ResponseBody
-	public ApiResponse<ArticlesVO> updateArticle(@PathVariable String articleId,
-			@RequestBody ModifyArticleVO modifyArticleVO) {
+	public ApiResponse<ArticlesVO> updateArticle(
+			@PathVariable String articleId,
+			@Valid @ModelAttribute ModifyArticleVO modifyArticleVO,
+			BindingResult validationResult,
+			HttpSession session) {
+		if (validationResult.hasErrors()) {
+			return ApiResponse.BAD_REQUEST(validationResult.getFieldErrors());
+		}
+		
+		// HttpSession에 있는 __LOGIN_USER__에 있는 email을 꺼내서 registArticleVO에 할당.
+		MembersVO membersVO = (MembersVO) session.getAttribute("__LOGIN_USER__");
+		if(membersVO == null) {
+			throw new IllegalArgumentException("로그인이 필요한 기능입니다.");
+		}
+		modifyArticleVO.setEmail( membersVO.getEmail());
+		
 		try {
 			ArticlesVO result = this.articlesService.updateArticle(articleId, modifyArticleVO);
 			return ApiResponse.OK(result);
@@ -87,7 +122,7 @@ public class ArticlesController {
 
 	@DeleteMapping("/articles/{articleId}")
 	@ResponseBody
-	public ApiResponse<String> deleteArticle(@PathVariable String articleId) {
+	public ApiResponse<String> deleteArticle(@Size(min=18, max=20, message="잘못된 값 입니다.") @PathVariable String articleId) {
 		try {
 			String deleteResult = this.articlesService.deleteArticle(articleId);
 			return ApiResponse.OK(deleteResult);
@@ -102,17 +137,6 @@ public class ArticlesController {
 		try {
 			ArticlesVO result = this.articlesService.readOneArticle(articleId);
 			return ApiResponse.OK(result);
-		} catch (IllegalArgumentException iae) {
-			return ApiResponse.FORBIDDEN(iae.getMessage());
-		}
-	}
-
-	@PutMapping("/articles/recommend/{articleId}")
-	@ResponseBody
-	public ApiResponse<Long> recommendOneArticle(@PathVariable String articleId) {
-		try {
-			long recommendResult = this.articlesService.recommendOneArticle(articleId);
-			return ApiResponse.OK(recommendResult);
 		} catch (IllegalArgumentException iae) {
 			return ApiResponse.FORBIDDEN(iae.getMessage());
 		}

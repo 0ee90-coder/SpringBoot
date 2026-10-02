@@ -1,6 +1,7 @@
 package com.ktdsuniversity.edu.service;
 
 import com.ktdsuniversity.edu.vo.response.MemberListVO;
+import com.ktdsuniversity.edu.vo.response.MembersVO;
 
 public interface MembersService {
 	
@@ -10,5 +11,7 @@ public interface MembersService {
 	 */
 	
 	MemberListVO readAllMembers();
+	
+	MembersVO createNewMember(RegistMembersVO registMembersVO);
 
 }
